@@ -1,0 +1,3 @@
+Expérience,Description,Train Acc (finale),Val Acc (finale),Val Acc (meilleure),Loss (val finale),Test Acc,Époques
+exp_002_no_augmentation,"MobileNetV2-UNet avec frozen encoder, sans data augmentation",0.9091886878013611,0.8975604176521301,0.8976989984512329,0.3308858871459961,,19
+exp_001_baseline,Baseline MobileNetV2-UNet avec frozen encoder,0.8938093185424805,0.8615237474441528,0.8753222823143005,0.4131756126880646,,9

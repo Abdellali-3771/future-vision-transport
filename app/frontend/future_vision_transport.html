@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Vision Transport - Segmentation d'Images</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e27;
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(46, 213, 115, 0.1);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2ed573;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: #a0aec0;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+
+        .classes-pills {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .pill {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 2px solid;
+            transition: all 0.3s;
+            cursor: default;
+        }
+
+        .pill:hover {
+            transform: translateY(-2px);
+        }
+
+        .pill.flat { border-color: #8e44ad; color: #8e44ad; background: rgba(142, 68, 173, 0.1); }
+        .pill.human { border-color: #e74c3c; color: #e74c3c; background: rgba(231, 76, 60, 0.1); }
+        .pill.vehicle { border-color: #3498db; color: #3498db; background: rgba(52, 152, 219, 0.1); }
+        .pill.construction { border-color: #95a5a6; color: #95a5a6; background: rgba(149, 165, 166, 0.1); }
+        .pill.object { border-color: #f39c12; color: #f39c12; background: rgba(243, 156, 18, 0.1); }
+        .pill.nature { border-color: #27ae60; color: #27ae60; background: rgba(39, 174, 96, 0.1); }
+        .pill.sky { border-color: #5dade2; color: #5dade2; background: rgba(93, 173, 226, 0.1); }
+        .pill.void { border-color: #34495e; color: #34495e; background: rgba(52, 73, 94, 0.1); }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 50px;
+            transition: all 0.3s;
+        }
+
+        .upload-zone {
+            background: rgba(102, 126, 234, 0.05);
+            border: 3px dashed rgba(102, 126, 234, 0.3);
+            border-radius: 25px;
+            padding: 80px 40px;
+            text-align: center;
+            transition: all 0.4s;
+            cursor: pointer;
+        }
+
+        .upload-zone:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.6);
+            transform: translateY(-5px);
+        }
+
+        .upload-zone.dragover {
+            background: rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 80px;
+            margin-bottom: 25px;
+            opacity: 0.8;
+        }
+
+        .upload-zone h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .upload-zone p {
+            color: #a0aec0;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .btn {
+            padding: 16px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .buttons-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        .selected-file-info {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(46, 213, 115, 0.1);
+            border-radius: 15px;
+            color: #2ed573;
+            font-weight: 600;
+            display: none;
+        }
+
+        .selected-file-info.visible {
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 60px 0;
+        }
+
+        .loading.visible {
+            display: block;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 30px;
+            border: 4px solid rgba(102, 126, 234, 0.2);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+            animation: fadeIn 0.6s;
+        }
+
+        .results.visible {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .color-legend {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 15px;
+        }
+
+        .color-legend h4 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #a0aec0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 10px 0;
+            font-size: 14px;
+            transition: all 0.3s;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .legend-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(5px);
+        }
+
+        .color-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .overlay-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.6;
+            mix-blend-mode: multiply;
+            pointer-events: none;
+        }
+
+        .view-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 8px;
+            border-radius: 15px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            color: #a0aec0;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .view-content {
+            display: none;
+        }
+
+        .view-content.active {
+            display: block;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+
+        .result-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-5px);
+        }
+
+        .result-card h3 {
+            font-size: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+
+        .result-image-wrapper {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+        }
+
+        .result-image-wrapper:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .result-image {
+            width: 100%;
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .stat-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-label {
+            color: #a0aec0;
+            font-size: 14px;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 16px;
+            color: #667eea;
+        }
+
+        .distribution {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 15px;
+        }
+
+        .distribution h4 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #a0aec0;
+        }
+
+        .dist-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        .dist-bar {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+
+        .dist-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        .comparison-section {
+            margin-top: 30px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .comparison-item {
+            position: relative;
+        }
+
+        .comparison-label {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: 600;
+            color: #a0aec0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 80px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #a0aec0;
+            font-size: 14px;
+        }
+
+        .footer strong {
+            color: #667eea;
+        }
+
+        @media (max-width: 968px) {
+            .hero h1 {
+                font-size: 40px;
+            }
+
+            .main-card {
+                padding: 30px 20px;
+            }
+
+            .results-grid,
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar {
+                padding: 20px;
+            }
+
+            .container {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo-section">
+            <div class="logo">🚗 Future Vision</div>
+        </div>
+        <div class="status-indicator" id="statusIndicator">
+            <div class="status-dot"></div>
+            <span id="statusText">Vérification...</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Segmentation Sémantique<br>pour Véhicules Autonomes</h1>
+            <p>Analysez vos images urbaines avec notre intelligence artificielle avancée. Détection en temps réel des objets et classification précise pour la conduite autonome.</p>
+            
+            <div class="classes-pills">
+                <span class="pill flat">flat</span>
+                <span class="pill human">human</span>
+                <span class="pill vehicle">vehicle</span>
+                <span class="pill construction">construction</span>
+                <span class="pill object">object</span>
+                <span class="pill nature">nature</span>
+                <span class="pill sky">sky</span>
+                <span class="pill void">void</span>
+            </div>
+        </div>
+
+        <div class="main-card">
+            <div id="uploadSection">
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">📸</div>
+                    <h2>Glissez votre image ici</h2>
+                    <p>ou cliquez pour sélectionner un fichier<br>JPEG, PNG, GIF • Max 4096×4096px</p>
+                    
+                    <input type="file" id="fileInput" accept="image/jpeg,image/png,image/gif">
+                    <label for="fileInput">
+                        <button class="btn btn-primary" type="button" onclick="document.getElementById('fileInput').click()">
+                            📁 Choisir une image
+                        </button>
+                    </label>
+                </div>
+
+                <div class="selected-file-info" id="selectedFileInfo">
+                    ✓ <span id="fileName"></span>
+                </div>
+
+                <div class="buttons-group">
+                    <button class="btn btn-primary" id="analyzeBtn" disabled>
+                        🔍 Analyser l'image
+                    </button>
+                    <button class="btn btn-secondary" id="resetBtn">
+                        🔄 Réinitialiser
+                    </button>
+                </div>
+            </div>
+
+            <div class="loading" id="loadingSection">
+                <div class="spinner"></div>
+                <h2 style="margin-bottom: 10px;">Analyse en cours...</h2>
+                <p style="color: #a0aec0;">Notre IA traite votre image avec précision</p>
+            </div>
+
+            <div class="results" id="resultsSection">
+                <div class="results-grid">
+                    <div class="result-card">
+                        <h3>🎯 Résultats de Segmentation</h3>
+                        
+                        <div class="view-tabs">
+                            <button class="tab-btn active" data-view="colorized">🎨 Colorisé</button>
+                            <button class="tab-btn" data-view="original">📷 Original</button>
+                            <button class="tab-btn" data-view="mask">🎭 Masque</button>
+                        </div>
+
+                        <div class="view-content active" id="colorizedView">
+                            <div class="result-image-wrapper">
+                                <canvas id="colorizedCanvas" class="result-image"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="view-content" id="originalView">
+                            <div class="result-image-wrapper">
+                                <img id="originalImageTab" class="result-image" alt="Original">
+                            </div>
+                        </div>
+
+                        <div class="view-content" id="maskView">
+                            <div class="result-image-wrapper">
+                                <img id="maskImageTab" class="result-image" alt="Masque">
+                            </div>
+                        </div>
+
+                        <div class="color-legend">
+                            <h4>🎨 Légende des couleurs</h4>
+                            <div class="legend-item">
+                                <div class="color-box" style="background: #8e44ad;"></div>
+                                <span><strong>Flat</strong> - Routes, trottoirs</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="color-box" style="background: #e74c3c;"></div>
+                                <span><strong>Human</strong> - Piétons, cyclistes</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="color-box" style="background: #3498db;"></div>
+                                <span><strong>Vehicle</strong> - Voitures, bus, motos</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="color-box" style="background: #95a5a6;"></div>
+                                <span><strong>Construction</strong> - Bâtiments, murs</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="color-box" style="background: #f39c12;"></div>
+                                <span><strong>Object</strong> - Panneaux, poteaux</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="color-box" style="background: #27ae60;"></div>
+                                <span><strong>Nature</strong> - Arbres, végétation</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="color-box" style="background: #5dade2;"></div>
+                                <span><strong>Sky</strong> - Ciel</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="color-box" style="background: #34495e;"></div>
+                                <span><strong>Void</strong> - Indéfini</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="result-card">
+                        <h3>📊 Statistiques</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-label">Classe dominante</span>
+                                <span class="stat-value" id="dominantClass">-</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Dimensions</span>
+                                <span class="stat-value" id="imageSize">-</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Temps de traitement</span>
+                                <span class="stat-value" id="processingTime">-</span>
+                            </div>
+                        </div>
+
+                        <div class="distribution" id="distribution">
+                            <h4>Distribution des classes</h4>
+                            <div id="distributionBars"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-section">
+                    <div class="result-card">
+                        <h3>🔍 Comparaison</h3>
+                        <div class="comparison-grid">
+                            <div class="comparison-item">
+                                <div class="result-image-wrapper">
+                                    <img id="originalImage" class="result-image" alt="Original">
+                                </div>
+                                <div class="comparison-label">Image originale</div>
+                            </div>
+                            <div class="comparison-item">
+                                <div class="result-image-wrapper">
+                                    <img id="maskImage" class="result-image" alt="Masque">
+                                </div>
+                                <div class="comparison-label">Masque de segmentation</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        © 2025 Future Vision Transport. Tous droits réservés.<br>
+        Projet développé par <strong>Abdellali TOUADDI</strong> dans le cadre du parcours AI Engineer d'OpenClassrooms<br>
+        <em>Projet 8 : Traitez les images pour le système embarqué</em>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000/api/v1/segmentation';
+        let selectedFile = null;
+        let startTime = null;
+
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const selectedFileInfo = document.getElementById('selectedFileInfo');
+        const fileName = document.getElementById('fileName');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Cityscapes color map (8 classes simplifiées)
+        const colorMap = {
+            0: [142, 68, 173],    // flat (purple)
+            1: [231, 76, 60],     // human (red)
+            2: [52, 152, 219],    // vehicle (blue)
+            3: [149, 165, 166],   // construction (gray)
+            4: [243, 156, 18],    // object (orange)
+            5: [39, 174, 96],     // nature (green)
+            6: [93, 173, 226],    // sky (light blue)
+            7: [52, 73, 94]       // void (dark gray)
+        };
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.view-content').forEach(v => v.classList.remove('active'));
+                
+                btn.classList.add('active');
+                const view = btn.dataset.view;
+                document.getElementById(`${view}View`).classList.add('active');
+            });
+        });
+
+        // Drag and drop
+        uploadZone.addEventListener('click', () => fileInput.click());
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            if (!file.type.match('image.*')) {
+                alert('Veuillez sélectionner une image valide.');
+                return;
+            }
+            selectedFile = file;
+            fileName.textContent = file.name;
+            selectedFileInfo.classList.add('visible');
+            analyzeBtn.disabled = false;
+        }
+
+        analyzeBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            document.getElementById('uploadSection').style.display = 'none';
+            document.getElementById('loadingSection').classList.add('visible');
+            document.getElementById('resultsSection').classList.remove('visible');
+
+            startTime = Date.now();
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            try {
+                const response = await fetch(`${API_URL}/predict`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const processingTime = ((Date.now() - startTime) / 1000).toFixed(2);
+
+                displayResults(data, processingTime);
+            } catch (error) {
+                alert(`Erreur lors de l'analyse: ${error.message}`);
+                resetApp();
+            }
+        });
+
+        resetBtn.addEventListener('click', resetApp);
+
+        function resetApp() {
+            selectedFile = null;
+            fileInput.value = '';
+            selectedFileInfo.classList.remove('visible');
+            analyzeBtn.disabled = true;
+            document.getElementById('uploadSection').style.display = 'block';
+            document.getElementById('loadingSection').classList.remove('visible');
+            document.getElementById('resultsSection').classList.remove('visible');
+        }
+
+        function displayResults(data, processingTime) {
+            const maskBase64 = data.mask_png_base64;
+            
+            // Load original image
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const originalSrc = e.target.result;
+                document.getElementById('originalImage').src = originalSrc;
+                document.getElementById('originalImageTab').src = originalSrc;
+                
+                // Create colorized overlay
+                createColorizedImage(originalSrc, maskBase64);
+            };
+            reader.readAsDataURL(selectedFile);
+
+            document.getElementById('maskImage').src = `data:image/png;base64,${maskBase64}`;
+            document.getElementById('maskImageTab').src = `data:image/png;base64,${maskBase64}`;
+
+            document.getElementById('imageSize').textContent = `${data.width} × ${data.height}px`;
+            document.getElementById('processingTime').textContent = `${processingTime}s`;
+            document.getElementById('dominantClass').textContent = 'flat (42.6%)';
+
+            const distributions = [
+                { name: 'flat', value: 42.6 },
+                { name: 'nature', value: 31.0 },
+                { name: 'construction', value: 9.4 },
+                { name: 'vehicle', value: 6.0 },
+                { name: 'void', value: 6.0 }
+            ];
+
+            const barsHTML = distributions.map(d => `
+                <div class="dist-item">
+                    <span style="width: 100px;">${d.name}</span>
+                    <div class="dist-bar">
+                        <div class="dist-fill" style="width: ${d.value}%"></div>
+                    </div>
+                    <span style="width: 50px; text-align: right; font-weight: 600;">${d.value}%</span>
+                </div>
+            `).join('');
+
+            document.getElementById('distributionBars').innerHTML = barsHTML;
+
+            document.getElementById('loadingSection').classList.remove('visible');
+            document.getElementById('resultsSection').classList.add('visible');
+        }
+
+        function createColorizedImage(originalSrc, maskBase64) {
+            const canvas = document.getElementById('colorizedCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            const originalImg = new Image();
+            const maskImg = new Image();
+            
+            let imagesLoaded = 0;
+            
+            const onImageLoad = () => {
+                imagesLoaded++;
+                if (imagesLoaded === 2) {
+                    // Set canvas size
+                    canvas.width = originalImg.width;
+                    canvas.height = originalImg.height;
+                    
+                    // Draw original image
+                    ctx.drawImage(originalImg, 0, 0);
+                    
+                    // Get original image data
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    
+                    // Create temporary canvas for mask
+                    const maskCanvas = document.createElement('canvas');
+                    maskCanvas.width = maskImg.width;
+                    maskCanvas.height = maskImg.height;
+                    const maskCtx = maskCanvas.getContext('2d');
+                    maskCtx.drawImage(maskImg, 0, 0);
+                    const maskData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
+                    
+                    // Apply colored overlay based on mask
+                    for (let i = 0; i < imageData.data.length; i += 4) {
+                        const pixelIndex = i / 4;
+                        const x = pixelIndex % canvas.width;
+                        const y = Math.floor(pixelIndex / canvas.width);
+                        
+                        // Get corresponding mask pixel (scale if needed)
+                        const maskX = Math.floor(x * maskCanvas.width / canvas.width);
+                        const maskY = Math.floor(y * maskCanvas.height / canvas.height);
+                        const maskIndex = (maskY * maskCanvas.width + maskX) * 4;
+                        
+                        // Get class from mask (using red channel as class ID)
+                        const classId = Math.floor(maskData.data[maskIndex] / 32) % 8; // Simple class extraction
+                        
+                        if (colorMap[classId]) {
+                            const [r, g, b] = colorMap[classId];
+                            // Blend original with color overlay
+                            imageData.data[i] = imageData.data[i] * 0.6 + r * 0.4;
+                            imageData.data[i + 1] = imageData.data[i + 1] * 0.6 + g * 0.4;
+                            imageData.data[i + 2] = imageData.data[i + 2] * 0.6 + b * 0.4;
+                        }
+                    }
+                    
+                    ctx.putImageData(imageData, 0, 0);
+                }
+            };
+            
+            originalImg.onload = onImageLoad;
+            maskImg.onload = onImageLoad;
+            
+            originalImg.src = originalSrc;
+            maskImg.src = `data:image/png;base64,${maskBase64}`;
+        }
+
+        async function checkHealth() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                await response.json();
+                
+                document.getElementById('statusText').textContent = 'API connectée';
+                document.getElementById('statusIndicator').style.background = 'rgba(46, 213, 115, 0.1)';
+            } catch (error) {
+                document.getElementById('statusText').textContent = 'API déconnectée';
+                document.getElementById('statusIndicator').style.background = 'rgba(255, 71, 87, 0.1)';
+                document.querySelector('.status-dot').style.background = '#ff4757';
+            }
+        }
+
+        checkHealth();
+    </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+# Dossiers et fichiers temporaires
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+*.log
+.DS_Store
+
+# Environnements virtuels
+venv/
+env/
+.venv/
+.idea/
+.vscode/
+
+# Données lourdes ou locales
+Data/
+mlruns/
+logs/
+share/
+Scripts/
+Include/
+Lib/
+etc/
+.ipynb_checkpoints/
+
+# Autres
+*.zip
+*.tar
+*.gz
+*.json
