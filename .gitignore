@@ -1,33 +1,24 @@
-# Dossiers et fichiers temporaires
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.db
-*.sqlite3
-*.log
-.DS_Store
-
-# Environnements virtuels
-venv/
-env/
-.venv/
-.idea/
-.vscode/
-
-# Données lourdes ou locales
-Data/
+# --- PROJECT CLEANUP IGNORE RULES ---
+# Dossiers lourds ou non requis pour OpenClassrooms
+app/model_weights/
+experiments/
 mlruns/
+mlartifacts/
 logs/
-share/
-Scripts/
-Include/
-Lib/
-etc/
+__pycache__/
 .ipynb_checkpoints/
-
-# Autres
+Lib/
+Scripts/
+share/
+Include/
+# Fichiers lourds
+*.keras
+*.h5
+*.csv
+*.png
+*.jpg
+*.jpeg
 *.zip
-*.tar
-*.gz
-*.json
+# Environnements / IDE
+.env
+.vscode/
