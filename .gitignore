@@ -1,24 +1,52 @@
 # --- PROJECT CLEANUP IGNORE RULES ---
 # Dossiers lourds ou non requis pour OpenClassrooms
-app/model_weights/
-experiments/
+app/model_weights/*
+!app/model_weights/cityscapes_segmentation_model.keras  # ✅ Garde uniquement le modèle final
+
+experiments/*                                           # Ignore les données brutes et résultats
+!experiments/exp_002_no_augmentation/results/evaluation_report.md  # ✅ Garde le rapport principal
+
 mlruns/
 mlartifacts/
 logs/
 __pycache__/
 .ipynb_checkpoints/
+
+# Environnements locaux
 Lib/
 Scripts/
-share/
 Include/
-# Fichiers lourds
-*.keras
+venv/
+.env
+
+# Fichiers lourds inutiles pour Git
 *.h5
-*.csv
+*.zip
+*.tar
+*.tar.gz
+*.ckpt
+*.pth
+*.pkl
+
+# Images et outputs de visualisation (générés)
 *.png
 *.jpg
 *.jpeg
-*.zip
-# Environnements / IDE
-.env
+*.csv
+
+# IDE / outils
 .vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Cache Python / Build
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+build/
+dist/
+
+# --- Notes projet / fichiers temporaires ---
+*.log
