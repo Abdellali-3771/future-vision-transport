@@ -1,0 +1,28 @@
+steps:
+  # Étape 1 : Construire l’image Docker à partir du Dockerfile
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', 'europe-west1-docker.pkg.dev/projet-app-segmentation/containers/segmentation-api:latest',
+      '.'
+    ]
+
+  # Étape 2 : Pousser l’image dans Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push',
+      'europe-west1-docker.pkg.dev/projet-app-segmentation/containers/segmentation-api:latest'
+    ]
+
+  # Étape 3 : Déployer automatiquement sur Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args: [
+      'run', 'deploy', 'segmentation-api',
+      '--image', 'europe-west1-docker.pkg.dev/projet-app-segmentation/containers/segmentation-api:latest',
+      '--region', 'europe-west1',
+      '--platform', 'managed',
+      '--allow-unauthenticated',
+      '--memory', '2Gi',
+      '--timeout', '900'
+    ]
