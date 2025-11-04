@@ -1,0 +1,12 @@
+{
+    "exp_name": "exp_002_no_augmentation",
+    "description": "MobileNetV2-UNet avec frozen encoder, sans data augmentation",
+    "params": {
+        "learning_rate": 0.0001,
+        "batch_size": 8,
+        "epochs": 20,
+        "base_model_trainable": false,
+        "validation_split": 0.2,
+        "augmentation": false
+    }
+}

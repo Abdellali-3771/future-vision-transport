@@ -1,0 +1,45 @@
+name: 🚀 Deploy FastAPI Segmentation API to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PROJECT_ID: projet-app-segmentation
+  REGION: europe-west1
+  SERVICE_NAME: fvt-backend
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🧭 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 🔧 Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        project_id: ${{ env.PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+
+    - name: 🐳 Build and push Docker image
+      run: |
+        gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+        docker build -t europe-west1-docker.pkg.dev/${{ env.PROJECT_ID }}/containers/${{ env.SERVICE_NAME }}:latest -f app/Dockerfile .
+        docker push europe-west1-docker.pkg.dev/${{ env.PROJECT_ID }}/containers/${{ env.SERVICE_NAME }}:latest
+
+    - name: 🚀 Deploy to Cloud Run
+      run: |
+        gcloud run deploy ${{ env.SERVICE_NAME }} \
+          --image europe-west1-docker.pkg.dev/${{ env.PROJECT_ID }}/containers/${{ env.SERVICE_NAME }}:latest \
+          --region ${{ env.REGION }} \
+          --allow-unauthenticated \
+          --platform managed \
+          --cpu=2 \
+          --memory=2Gi \
+          --timeout=900 \
+          --max-instances=3 \
+          --concurrency=4

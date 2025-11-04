@@ -1,0 +1,12 @@
+{
+    "exp_name": "exp_003_finetune",
+    "description": "Fine-tuning MobileNetV2 avec encoder dégelé (exp_003)",
+    "params": {
+        "learning_rate": 1e-05,
+        "batch_size": 8,
+        "epochs": 5,
+        "base_model_trainable": true,
+        "validation_split": 0.2,
+        "augmentation": false
+    }
+}
