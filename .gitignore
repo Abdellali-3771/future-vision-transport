@@ -1,9 +1,9 @@
-# --- PROJECT CLEANUP IGNORE RULES ---
-# Dossiers lourds ou non requis pour OpenClassrooms
-app/model_weights/*
-!app/model_weights/cityscapes_segmentation_model.keras  # ✅ Garde uniquement le modèle final
+# ============================================================
+# --- PROJECT CLEANUP IGNORE RULES (Optimisé pour FastAPI + TensorFlow + Cloud Run)
+# ============================================================
 
-experiments/*                                           # Ignore les données brutes et résultats
+# === Dossiers lourds ou non requis pour OpenClassrooms ===
+experiments/*                                           # Ignore toutes les expériences
 !experiments/exp_002_no_augmentation/results/evaluation_report.md  # ✅ Garde le rapport principal
 
 mlruns/
@@ -12,14 +12,29 @@ logs/
 __pycache__/
 .ipynb_checkpoints/
 
-# Environnements locaux
+# === Dossier modèle (on garde le modèle et le mapping) ===
+app/model_weights/*
+!app/model_weights/*.keras
+!app/model_weights/*.json
+
+# === Données et dossiers locaux ===
+Data/
+etc/
+share/
+tmp/
+cache/
+datasets/
+samples/
+
+# === Environnements locaux / Anaconda ===
 Lib/
 Scripts/
 Include/
 venv/
 .env
+pyvenv.cfg
 
-# Fichiers lourds inutiles pour Git
+# === Fichiers lourds ou générés ===
 *.h5
 *.zip
 *.tar
@@ -27,20 +42,23 @@ venv/
 *.ckpt
 *.pth
 *.pkl
+*.npy
+*.npz
+*.csv
 
-# Images et outputs de visualisation (générés)
+# === Images et outputs de visualisation ===
 *.png
 *.jpg
 *.jpeg
-*.csv
+*.gif
 
-# IDE / outils
+# === IDE / outils ===
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 
-# Cache Python / Build
+# === Cache Python / Build ===
 *.pyc
 *.pyo
 *.pyd
@@ -48,5 +66,7 @@ Thumbs.db
 build/
 dist/
 
-# --- Notes projet / fichiers temporaires ---
+# === Notes projet / fichiers temporaires ===
 *.log
+*.bak
+*.tmp
